@@ -1,0 +1,21 @@
+# Logging Instructions for permit-fastmcp
+
+To ensure consistent logging across the project, use the logger setup provided in:
+
+    permit_fastmcp/logger_config.py
+
+## How to use
+
+1. Import and call the setup function at the top of your main script or module:
+
+    from permit_fastmcp.logger_config import setup_logging
+    setup_logging()
+
+2. Get a logger in your module using:
+
+    import logging
+    logger = logging.getLogger("permit_fastmcp.<your_module>")
+
+Replace `<your_module>` with the relevant module or submodule name.
+
+This ensures all logs are formatted and handled consistently throughout the project. 
