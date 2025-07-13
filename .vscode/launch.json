@@ -9,7 +9,7 @@
             "name": "Python Debugger: FastMCP",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/permit_fastmcp/main.py",
+            "program": "${workspaceFolder}/permit_fastmcp/run_example_server.py",
             "args": [
 
             ],
