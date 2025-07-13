@@ -1,0 +1,30 @@
+# CursorRules for permit-fastmcp
+
+# Python Best Practices
+- Follow PEP8 for code style and formatting.
+- Use type hints and docstrings for all public functions and classes.
+- Prefer async/await for I/O-bound operations.
+- Use logging instead of print statements.
+- Handle exceptions gracefully and provide helpful error messages.
+- Keep functions small and focused; prefer composition over inheritance.
+- Use environment variables or config files for secrets and settings.
+- Write tests for new features and bug fixes.
+
+# Dependency Management & Publishing
+- Use `uv` for installing, updating, and publishing packages:
+  - Install dependencies: `uv pip install -r requirements.txt`
+  - Add a dependency: `uv pip install <package>`
+  - Update lockfile: `uv pip compile`
+  - Publish: `uv publish`
+- Keep `requirements.txt`, `pyproject.toml`, and `uv.lock` in sync.
+
+# Documentation & Project Hygiene
+- Update `llms.txt` with any new usage patterns, configuration, or developer instructions.
+- Update `README.md` to reflect new features, configuration options, or breaking changes.
+- Add or update inline comments for complex logic.
+- Ensure all public APIs are documented.
+
+# General
+- Use descriptive commit messages.
+- Remove unused code and files.
+- Keep the codebase clean and organized. 

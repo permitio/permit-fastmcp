@@ -7,7 +7,9 @@ from fastmcp.server.middleware import Middleware, MiddlewareContext
 from fastmcp.exceptions import McpError
 from mcp.types import ErrorData
 
-from .config import ACTION_PREFIX, BYPASSED_METHODS, KNOWN_METHODS, RESOURCE_PREFIX
+import re
+import jwt
+from .config import SETTINGS
 
 logger = logging.getLogger("permit_fastmcp.middleware")
 
@@ -30,56 +32,105 @@ class PermitMcpMiddleware(Middleware):
             token=permit_api_key
         )
         self._enable_audit_logging = enable_audit_logging
-        self._bypass_methods = bypass_methods or BYPASSED_METHODS
+        self._bypass_methods = bypass_methods or SETTINGS.bypassed_methods
 
     async def on_message(self, context: MiddlewareContext, call_next):
-        # Extract the incoming MCP message and its key fields
         message = context.message
-        method = getattr(message, "method", None)
-        params = getattr(message, "params", None)
+        method = getattr(message, "method", None) or context.method
+        params = getattr(message, "params", None) or {}
         msg_id = getattr(message, "id", None)
 
-        # If there's no method, this isn't a JSON-RPC request we care about
         if not method:
             return await call_next(context)
 
-        # Skip authorization for bypassed methods (e.g., ping, initialize)
         if any(fnmatch.fnmatch(method, pattern) for pattern in self._bypass_methods):
             return await call_next(context)
 
-        # Perform authorization check with Permit.io
-        permitted, reason = await self._authorize_request(method, params, msg_id, context)
+        # Only handle non-tool calls here
+        if method != "tools/call":
+            # Inline mapping logic for non-tool calls
+            known_methods = SETTINGS.known_methods
+            if method in known_methods:
+                # Split method into resource type and action
+                resource_type, action = method.split("/")
+                resource = resource_type
+            else:
+                # Fallback for unknown methods
+                resource_type = "unknown"
+                resource = f"method:{method}"
+                action = "access"
+            # Build attributes for authorization
+            attributes = {
+                "mcp_method": method,
+                "resource_type": resource_type,
+                "arguments": params.get("arguments", {}),
+            }
+            if method == "resources/read":
+                # Special-case for resource reads
+                action = "read"
+                resource = resource + f":{params.get('uri')}"
+                attributes["resource_uri"] = params.get("uri")
+            elif method == "prompts/get":
+                # Special-case for prompt gets
+                action = "read"
+                resource = resource + f":{params.get('name')}"
+                attributes["prompt_name"] = params.get("name")
+            # Add tenant if present
+            if "tenant" in params:
+                attributes["tenant"] = params["tenant"]
+            # Prefix resource with server name or default prefix
+            if SETTINGS.prefix_resource_with_server_name:
+                resource = SETTINGS.mcp_server_name + '_' + resource
+            else:
+                resource = SETTINGS.resource_prefix + resource
+            # Prefix the action if needed
+            action = SETTINGS.action_prefix + action
+            logger.info(f"Mapped method to action: {action} and resource: {resource}")
+            permitted, reason = await self._authorize_request(resource, action, attributes, context)
+            if not permitted:
+                if self._enable_audit_logging:
+                    self._log_access_denied(context, message, reason)
+                raise McpError(ErrorData(code=-32010, message="Unauthorized", data=reason))
+            if self._enable_audit_logging:
+                self._log_authorized_request(context, message)
+
+        return await call_next(context)
+
+    async def on_call_tool(self, context: MiddlewareContext, call_next):
+        message = context.message
+        method = getattr(message, "method", None) or context.method
+        params = getattr(message, "params", None) or {}
+        tool_name = getattr(message, "name", None)
+        arguments = getattr(message, "arguments", {})
+        # New mapping: resource = MCP_SERVER_NAME, action = tool_name (no prefix)
+        resource = SETTINGS.mcp_server_name
+        action = tool_name or "unknown_tool"
+        attributes = {
+            "tool_name": tool_name,
+            "arguments": arguments,
+            "mcp_method": method,
+        }
+        logger.info(f"Mapped tool call to action: {action} and resource: {resource}")
+        permitted, reason = await self._authorize_request(resource, action, attributes, context)
         if not permitted:
-            # Log and raise a FastMCP error if not authorized
             if self._enable_audit_logging:
                 self._log_access_denied(context, message, reason)
             raise McpError(ErrorData(code=-32010, message="Unauthorized", data=reason))
-
-        # Log successful authorization if enabled
         if self._enable_audit_logging:
             self._log_authorized_request(context, message)
-
-        # Continue to the next middleware or handler
         return await call_next(context)
 
-    async def _authorize_request(self, method, params, msg_id, context: MiddlewareContext) -> tuple[bool, str]:
-        # Map the MCP method and params to Permit.io action/resource
+    async def _authorize_request(self, resource, action, attributes, context: MiddlewareContext) -> tuple[bool, str]:
         try:
             user_id, user_attrs = self._extract_principal_info(context)
-            action, resource, resource_attrs = self._map_method_to_action_and_resource(
-                method, params or {}
-            )
-            # Build the resource dict for Permit.io
             resource_dict = {"type": resource}
-            if resource_attrs:
-                resource_dict["attributes"] = resource_attrs
-            if "tenant" in resource_attrs:
-                resource_dict["tenant"] = resource_attrs["tenant"]
-            # Build the user object for Permit.io
+            if attributes:
+                resource_dict["attributes"] = attributes
+            if "tenant" in attributes:
+                resource_dict["tenant"] = attributes["tenant"]
             user_obj = user_id
             if user_attrs:
                 user_obj = {"key": user_id, "attributes": user_attrs}
-            # Call Permit.io to check authorization
             permitted = await self._permit_client.check(user_obj, action, resource_dict)
             return permitted, ""
         except Exception as e:
@@ -87,44 +138,38 @@ class PermitMcpMiddleware(Middleware):
             return False, f"Authorization system error: {str(e)}"
 
     def _extract_principal_info(self, context: MiddlewareContext) -> tuple[str, dict[str, Any]]:
-        # Extract user identity from the context (customize as needed)
-        uri = getattr(context, "source", None) or "unknown"
-        attributes = {"source": uri}
-        return uri, attributes
-
-    def _map_method_to_action_and_resource(self, method: str, params: dict[str, Any]) -> tuple[str, str, dict[str, Any]]:
-        # Map MCP method to Permit.io action/resource/attributes
-        known_methods = KNOWN_METHODS
-        if method in known_methods:
-            resource_type, action = method.split("/")
-            resource = resource_type
-        else:
-            resource_type = "unknown"
-            resource = f"method:{method}"
-        attributes = {
-            "mcp_method": method,
-            "resource_type": resource_type,
-            "arguments": params.get("arguments", {}),
-        }
-        # Special-case mapping for certain methods
-        if method == "tools/call":
-            action = "execute"
-            resource = resource + f":{params.get('name')}"
-            attributes["tool_name"] = params.get("name")
-        elif method == "resources/read":
-            action = "read"
-            resource = resource + f":{params.get('uri')}"
-            attributes["resource_uri"] = params.get("uri")
-        elif method == "prompts/get":
-            action = "read"
-            resource = resource + f":{params.get('name')}"
-            attributes["prompt_name"] = params.get("name")
-        if "tenant" in params:
-            attributes["tenant"] = params["tenant"]
-        # add prefix to action and resource
-        action = ACTION_PREFIX + action
-        resource = RESOURCE_PREFIX + resource
-        return action, resource, attributes
+        request = context.fastmcp_context.request_context.request
+        headers = getattr(request, "headers", {}) or {}
+        # Identity extraction logic based on config
+        if SETTINGS.identity_mode == "jwt":
+            # Extract JWT from headers using regex
+            header_val = headers.get(SETTINGS.identity_header) or headers.get(SETTINGS.identity_header.lower())
+            if not header_val:
+                return "unknown", {"type": "missing_jwt_header"}
+            match = re.match(SETTINGS.identity_header_regex, header_val)
+            if not match:
+                return "unknown", {"type": "invalid_jwt_header_format"}
+            token = match.group(1)
+            try:
+                payload = jwt.decode(token, SETTINGS.identity_jwt_secret, algorithms=SETTINGS.jwt_algorithms, options={"verify_aud": False})
+                identity = payload.get(SETTINGS.identity_jwt_field, "unknown")
+                return identity, {"jwt": payload}
+            except Exception as e:
+                logger.error(f"JWT decode/verify failed: {e}")
+                return "unknown", {"type": "jwt_error", "error": str(e)}
+        elif SETTINGS.identity_mode == "header":
+            # Extract identity from a specific header
+            identity = headers.get(SETTINGS.identity_header) or headers.get(SETTINGS.identity_header.lower())
+            if not identity:
+                return "unknown", {"type": "missing_identity_header"}
+            return identity, {"header": SETTINGS.identity_header}
+        elif SETTINGS.identity_mode == "source":
+            # Extract identity from context.source
+            identity = getattr(context, "source", None) or "unknown"
+            return identity, {"type": "source_field"}
+        else:  # fixed
+            # Use a fixed identity value
+            return SETTINGS.identity_fixed_value, {"type": "fixed_identity"}
 
     def _log_access_denied(self, context: MiddlewareContext, message, reason: str):
         # Log an authorization violation

@@ -18,4 +18,89 @@ To ensure consistent logging across the project, use the logger setup provided i
 
 Replace `<your_module>` with the relevant module or submodule name.
 
-This ensures all logs are formatted and handled consistently throughout the project. 
+This ensures all logs are formatted and handled consistently throughout the project.
+
+## Configuration
+
+### Environment Variables
+
+The middleware configuration can be customized using environment variables with the `PERMIT_MCP_` prefix:
+
+```bash
+# Permit.io configuration
+export PERMIT_MCP_PERMIT_PDP_URL="http://localhost:7766"
+export PERMIT_MCP_PERMIT_API_KEY="your-api-key"
+
+# Method configuration
+export PERMIT_MCP_KNOWN_METHODS='["tools/list","tools/call"]'
+export PERMIT_MCP_BYPASSED_METHODS='["initialize","ping"]'
+
+# Prefix configuration
+export PERMIT_MCP_ACTION_PREFIX="mcp_"
+export PERMIT_MCP_RESOURCE_PREFIX="mcp_"
+
+# Logging configuration
+export PERMIT_MCP_ENABLE_AUDIT_LOGGING="true"
+```
+
+### Using .env file
+
+Create a `.env` file in your project root:
+
+```env
+PERMIT_MCP_PERMIT_PDP_URL=http://localhost:7766
+PERMIT_MCP_PERMIT_API_KEY=your-api-key
+PERMIT_MCP_ENABLE_AUDIT_LOGGING=true
+```
+
+## Development Environment Setup
+
+### Virtual Environment Management with UV
+
+This project uses UV for dependency management. When adding new modules or dependencies:
+
+1. **Activate the virtual environment:**
+   ```bash
+   uv venv
+   source .venv/bin/activate  # On macOS/Linux
+   # or
+   .venv\Scripts\activate     # On Windows
+   ```
+
+2. **Add new dependencies:**
+   ```bash
+   uv add <package-name>
+   ```
+
+3. **Install all dependencies:**
+   ```bash
+   uv sync
+   ```
+
+4. **Update dependencies:**
+   ```bash
+   uv update
+   ```
+
+5. **Run the project:**
+   ```bash
+   uv run python main.py
+   ```
+
+### Adding New Modules
+
+When adding new Python modules or packages:
+
+1. Add the dependency to `pyproject.toml` or use `uv add`
+2. Run `uv sync` to install the new dependency
+3. Update any import statements in your code
+4. Test that the new module works correctly
+
+### Best Practices
+
+- Always work within the virtual environment
+- Use `uv add` instead of `pip install` for consistency
+- Keep `pyproject.toml` and `uv.lock` in version control
+- Run `uv sync` after pulling changes to ensure dependencies are up to date
+- Use environment variables for configuration in production
+- Keep sensitive values like API keys in environment variables, not in code 

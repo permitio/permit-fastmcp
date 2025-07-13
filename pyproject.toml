@@ -8,5 +8,7 @@ dependencies = [
     "fastmcp>=2.10.1",
     "permit>=2.7.5",
     "pydantic>=2.11.7",
+    "pydantic-settings>=2.0.0",
     "starlette>=0.47.1",
+    "pyjwt>=2.8.0",
 ]

@@ -3,7 +3,7 @@ import logging
 def setup_logging(level=logging.INFO):
     logging.basicConfig(
         level=level,
-        format="%(asctime)s %(levelname)s %(name)s %(message)s"
+        format="%(levelname)s: %(message)s | %(name)s | %(asctime)s"
     )
     # Optionally set Starlette/Uvicorn log levels
     logging.getLogger("uvicorn").setLevel(level)
