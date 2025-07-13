@@ -1,4 +1,3 @@
-
 import fnmatch
 import logging
 from typing import Any, Optional
@@ -13,11 +12,13 @@ from .config import SETTINGS
 
 logger = logging.getLogger("permit_fastmcp.middleware")
 
+
 class PermitMcpMiddleware(Middleware):
     """
     Permit.io authorization middleware for FastMCP servers (MCP Middleware).
     Intercepts MCP requests and validates them against Permit.io policies.
     """
+
     def __init__(
         self,
         permit_client: Optional[Permit] = None,
@@ -28,8 +29,7 @@ class PermitMcpMiddleware(Middleware):
     ):
         super().__init__()
         self._permit_client = permit_client or Permit(
-            pdp=permit_pdp_url or "http://localhost:7766",
-            token=permit_api_key
+            pdp=permit_pdp_url or "http://localhost:7766", token=permit_api_key
         )
         self._enable_audit_logging = enable_audit_logging
         self._bypass_methods = bypass_methods or SETTINGS.bypassed_methods
@@ -80,17 +80,21 @@ class PermitMcpMiddleware(Middleware):
                 attributes["tenant"] = params["tenant"]
             # Prefix resource with server name or default prefix
             if SETTINGS.prefix_resource_with_server_name:
-                resource = SETTINGS.mcp_server_name + '_' + resource
+                resource = SETTINGS.mcp_server_name + "_" + resource
             else:
                 resource = SETTINGS.resource_prefix + resource
             # Prefix the action if needed
             action = SETTINGS.action_prefix + action
             logger.info(f"Mapped method to action: {action} and resource: {resource}")
-            permitted, reason = await self._authorize_request(resource, action, attributes, context)
+            permitted, reason = await self._authorize_request(
+                resource, action, attributes, context
+            )
             if not permitted:
                 if self._enable_audit_logging:
                     self._log_access_denied(context, message, reason)
-                raise McpError(ErrorData(code=-32010, message="Unauthorized", data=reason))
+                raise McpError(
+                    ErrorData(code=-32010, message="Unauthorized", data=reason)
+                )
             if self._enable_audit_logging:
                 self._log_authorized_request(context, message)
 
@@ -111,7 +115,9 @@ class PermitMcpMiddleware(Middleware):
             "mcp_method": method,
         }
         logger.info(f"Mapped tool call to action: {action} and resource: {resource}")
-        permitted, reason = await self._authorize_request(resource, action, attributes, context)
+        permitted, reason = await self._authorize_request(
+            resource, action, attributes, context
+        )
         if not permitted:
             if self._enable_audit_logging:
                 self._log_access_denied(context, message, reason)
@@ -120,7 +126,9 @@ class PermitMcpMiddleware(Middleware):
             self._log_authorized_request(context, message)
         return await call_next(context)
 
-    async def _authorize_request(self, resource, action, attributes, context: MiddlewareContext) -> tuple[bool, str]:
+    async def _authorize_request(
+        self, resource, action, attributes, context: MiddlewareContext
+    ) -> tuple[bool, str]:
         try:
             user_id, user_attrs = self._extract_principal_info(context)
             resource_dict = {"type": resource}
@@ -137,13 +145,17 @@ class PermitMcpMiddleware(Middleware):
             logger.error(f"Authorization check failed: {e}")
             return False, f"Authorization system error: {str(e)}"
 
-    def _extract_principal_info(self, context: MiddlewareContext) -> tuple[str, dict[str, Any]]:
+    def _extract_principal_info(
+        self, context: MiddlewareContext
+    ) -> tuple[str, dict[str, Any]]:
         request = context.fastmcp_context.request_context.request
         headers = getattr(request, "headers", {}) or {}
         # Identity extraction logic based on config
         if SETTINGS.identity_mode == "jwt":
             # Extract JWT from headers using regex
-            header_val = headers.get(SETTINGS.identity_header) or headers.get(SETTINGS.identity_header.lower())
+            header_val = headers.get(SETTINGS.identity_header) or headers.get(
+                SETTINGS.identity_header.lower()
+            )
             if not header_val:
                 return "unknown", {"type": "missing_jwt_header"}
             match = re.match(SETTINGS.identity_header_regex, header_val)
@@ -151,7 +163,12 @@ class PermitMcpMiddleware(Middleware):
                 return "unknown", {"type": "invalid_jwt_header_format"}
             token = match.group(1)
             try:
-                payload = jwt.decode(token, SETTINGS.identity_jwt_secret, algorithms=SETTINGS.jwt_algorithms, options={"verify_aud": False})
+                payload = jwt.decode(
+                    token,
+                    SETTINGS.identity_jwt_secret,
+                    algorithms=SETTINGS.jwt_algorithms,
+                    options={"verify_aud": False},
+                )
                 identity = payload.get(SETTINGS.identity_jwt_field, "unknown")
                 return identity, {"jwt": payload}
             except Exception as e:
@@ -159,7 +176,9 @@ class PermitMcpMiddleware(Middleware):
                 return "unknown", {"type": "jwt_error", "error": str(e)}
         elif SETTINGS.identity_mode == "header":
             # Extract identity from a specific header
-            identity = headers.get(SETTINGS.identity_header) or headers.get(SETTINGS.identity_header.lower())
+            identity = headers.get(SETTINGS.identity_header) or headers.get(
+                SETTINGS.identity_header.lower()
+            )
             if not identity:
                 return "unknown", {"type": "missing_identity_header"}
             return identity, {"header": SETTINGS.identity_header}
