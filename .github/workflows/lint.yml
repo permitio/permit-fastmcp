@@ -32,10 +32,8 @@ jobs:
       - name: Install dependencies
         run: |
           uv venv
-          source .venv/bin/activate
           uv sync
 
       - name: Run flake8
         run: |
-          source .venv/bin/activate
-          .venv/bin/flake8 permit_fastmcp tests
+          uv run flake8 permit_fastmcp tests
