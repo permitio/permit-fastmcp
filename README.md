@@ -63,6 +63,8 @@ See [`permit_fastmcp/example_server/example.py`](permit_fastmcp/example_server/e
 - [Advanced Configuration](./docs/advanced-configuration.md)
 - [Identity Modes & Environment Variables](./docs/identity-modes.md)
 - [Detailed Policy Mapping](./docs/policy-mapping.md)
+- [Configuration Reference](./docs/configuration-reference.md)
+- [Troubleshooting](./docs/troubleshooting.md)
 - [Getting Started & FAQ](./docs/getting-started.md)
 
 ## License
