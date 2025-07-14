@@ -34,6 +34,6 @@ jobs:
           uv venv
           uv sync
 
-      - name: Run flake8
+      - name: Run black (check only)
         run: |
-          uv run flake8 permit_fastmcp tests
+          uv run black --check .

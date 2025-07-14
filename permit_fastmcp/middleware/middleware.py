@@ -38,7 +38,7 @@ class PermitMcpMiddleware(Middleware):
         message = context.message
         method = getattr(message, "method", None) or context.method
         params = getattr(message, "params", None) or {}
-        msg_id = getattr(message, "id", None)
+        # msg_id = getattr(message, "id", None)  # F841: unused variable
 
         if not method:
             return await call_next(context)
@@ -92,12 +92,22 @@ class PermitMcpMiddleware(Middleware):
             )
             if not permitted:
                 if self._enable_audit_logging:
-                    self._log_access_event(context, message, user_id, resource, action, permitted=False, reason=reason)
+                    self._log_access_event(
+                        context,
+                        message,
+                        user_id,
+                        resource,
+                        action,
+                        permitted=False,
+                        reason=reason,
+                    )
                 raise McpError(
                     ErrorData(code=-32010, message="Unauthorized", data=reason)
                 )
             if self._enable_audit_logging:
-                self._log_access_event(context, message, user_id, resource, action, permitted=True)
+                self._log_access_event(
+                    context, message, user_id, resource, action, permitted=True
+                )
 
         return await call_next(context)
 
@@ -122,10 +132,20 @@ class PermitMcpMiddleware(Middleware):
         )
         if not permitted:
             if self._enable_audit_logging:
-                self._log_access_event(context, message, user_id, resource, action, permitted=False, reason=reason)
+                self._log_access_event(
+                    context,
+                    message,
+                    user_id,
+                    resource,
+                    action,
+                    permitted=False,
+                    reason=reason,
+                )
             raise McpError(ErrorData(code=-32010, message="Unauthorized", data=reason))
         if self._enable_audit_logging:
-            self._log_access_event(context, message, user_id, resource, action, permitted=True)
+            self._log_access_event(
+                context, message, user_id, resource, action, permitted=True
+            )
         return await call_next(context)
 
     async def _authorize_request(
@@ -192,10 +212,19 @@ class PermitMcpMiddleware(Middleware):
             # Use a fixed identity value
             return SETTINGS.identity_fixed_value, {"type": "fixed_identity"}
 
-    def _log_access_event(self, context: MiddlewareContext, message, user_id, resource, action, permitted: bool, reason: str = ""):
+    def _log_access_event(
+        self,
+        context: MiddlewareContext,
+        message,
+        user_id,
+        resource,
+        action,
+        permitted: bool,
+        reason: str = "",
+    ):
         # Unified logging for both authorized and denied access events
-        method = getattr(message, 'method', 'unknown')
-        source = getattr(context, 'source', 'unknown')
+        method = getattr(message, "method", "unknown")
+        source = getattr(context, "source", "unknown")
         log_msg = (
             f"{'Authorized' if permitted else 'Denied'} MCP request | "
             f"User: {user_id} | Method: {method} | Resource: {resource} | Action: {action} | Source: {source}"

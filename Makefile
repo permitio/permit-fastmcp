@@ -8,7 +8,7 @@ format:
 	black .
 
 lint:
-	.venv/bin/flake8 permit_fastmcp tests
+	black --check .
 
  typecheck:
 	@echo "[typecheck] Add your type checker (e.g., mypy) here."

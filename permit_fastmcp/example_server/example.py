@@ -1,21 +1,26 @@
 """
 Example FastMCP server with Permit.io authorization and JWT-based authentication.
 
-NOTE: The `login` tool in this example is NOT the standard way to obtain a JWT in production. It is included only for simplicity and to make demoing/experimenting with the example server easy. In real-world scenarios, JWTs should be issued by your authentication provider (e.g., Auth0, Okta, your own IdP).
+NOTE: The `login` tool in this example is NOT the standard way to obtain a JWT in
+production. It is included only for simplicity and to make demoing/experimenting
+with the example server easy. In real-world scenarios, JWTs should be issued by
+your authentication provider (e.g., Auth0, Okta, your own IdP).
 
 - Provides a login tool to get a JWT token.
 - Demonstrates how to use the JWT in the Authorization header for secure tool calls.
 - Shows how to configure the middleware for JWT identity extraction.
 
-Run this server and use the login tool to get a token, then call greet-jwt with the token in the Authorization header.
+Run this server and use the login tool to get a token, then call greet-jwt with
+the token in the Authorization header.
 """
 
 from fastmcp import FastMCP, Context
 import jwt
 import datetime
-from middleware.config import SETTINGS
+from permit_fastmcp.middleware.config import SETTINGS
 
-# Secret key for signing JWTs (in production, use a secure, environment-based secret!)
+# Secret key for signing JWTs (in production, use a secure, environment-based
+# secret!)
 SECRET_KEY = "mysecretkey"
 
 # Configure the middleware to use JWT mode for identity extraction
@@ -33,7 +38,10 @@ def greet(name: str) -> str:
 
 
 @mcp.tool(
-    description="Login to the system and get a JWT token, use the JWT as the Authorization header in subsequent requests"
+    description=(
+        "Login to the system and get a JWT token, use the JWT as the Authorization "
+        "header in subsequent requests"
+    )
 )
 def login(username: str, password: str) -> str:
     """
@@ -60,7 +68,10 @@ def login(username: str, password: str) -> str:
 
 @mcp.tool(
     name="greet-jwt",
-    description="Greet a user by extracting their name from a JWT in the Authorization header.",
+    description=(
+        "Greet a user by extracting their name from a JWT in the Authorization "
+        "header."
+    ),
 )
 async def greet_jwt(ctx: Context) -> str:
     """

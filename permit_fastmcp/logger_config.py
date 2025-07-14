@@ -2,7 +2,8 @@
 Logger configuration for permit-fastmcp package.
 
 This module sets up logging for the middleware and related components.
-Import this module to ensure consistent logging configuration across the package.
+Import this module to ensure consistent logging configuration across the
+package.
 """
 
 import logging

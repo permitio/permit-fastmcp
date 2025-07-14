@@ -15,9 +15,7 @@
             ],
             "justMyCode": false,
             "jinja": true,
-            "env": {
-                "PERMIT_API_KEY": "your-permit-api-key-here"
-            }
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }

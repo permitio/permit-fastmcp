@@ -1,7 +1,8 @@
 """
 Configuration settings for PermitMcpMiddleware using pydantic-settings.
 
-All settings can be configured via environment variables with sensible defaults.
+All settings can be configured via environment variables with sensible
+defaults.
 """
 
 from typing import List
