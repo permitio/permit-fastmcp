@@ -34,6 +34,9 @@ jobs:
           uv venv
           uv sync
 
+      - name: Install black
+        run: uv pip install black
+
       - name: Run black (check only)
         run: |
           uv run black --check .
