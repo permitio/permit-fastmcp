@@ -5,10 +5,8 @@ from example_server.example import mcp as example_mcp
 from middleware.middleware import PermitMcpMiddleware
 
 # Import and set up logging configuration
-from logger_config import setup_logging
 import os
-
-setup_logging()  # Initialize logging for the application
+import logger_config  # Ensures logging is configured
 
 
 def main():

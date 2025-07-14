@@ -11,7 +11,7 @@ Run this server and use the login tool to get a token, then call greet-jwt with 
 from fastmcp import FastMCP, Context
 import jwt
 import datetime
-from permit_fastmcp.middleware.config import SETTINGS
+from middleware.config import SETTINGS
 
 # Secret key for signing JWTs (in production, use a secure, environment-based secret!)
 SECRET_KEY = "mysecretkey"

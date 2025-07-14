@@ -85,18 +85,19 @@ class PermitMcpMiddleware(Middleware):
                 resource = SETTINGS.resource_prefix + resource
             # Prefix the action if needed
             action = SETTINGS.action_prefix + action
-            logger.info(f"Mapped method to action: {action} and resource: {resource}")
+            logger.debug(f"Mapped method to action: {action} and resource: {resource}")
+            user_id, _ = self._extract_principal_info(context)
             permitted, reason = await self._authorize_request(
                 resource, action, attributes, context
             )
             if not permitted:
                 if self._enable_audit_logging:
-                    self._log_access_denied(context, message, reason)
+                    self._log_access_event(context, message, user_id, resource, action, permitted=False, reason=reason)
                 raise McpError(
                     ErrorData(code=-32010, message="Unauthorized", data=reason)
                 )
             if self._enable_audit_logging:
-                self._log_authorized_request(context, message)
+                self._log_access_event(context, message, user_id, resource, action, permitted=True)
 
         return await call_next(context)
 
@@ -114,16 +115,17 @@ class PermitMcpMiddleware(Middleware):
             "arguments": arguments,
             "mcp_method": method,
         }
-        logger.info(f"Mapped tool call to action: {action} and resource: {resource}")
+        logger.debug(f"Mapped tool call to action: {action} and resource: {resource}")
+        user_id, _ = self._extract_principal_info(context)
         permitted, reason = await self._authorize_request(
             resource, action, attributes, context
         )
         if not permitted:
             if self._enable_audit_logging:
-                self._log_access_denied(context, message, reason)
+                self._log_access_event(context, message, user_id, resource, action, permitted=False, reason=reason)
             raise McpError(ErrorData(code=-32010, message="Unauthorized", data=reason))
         if self._enable_audit_logging:
-            self._log_authorized_request(context, message)
+            self._log_access_event(context, message, user_id, resource, action, permitted=True)
         return await call_next(context)
 
     async def _authorize_request(
@@ -190,17 +192,17 @@ class PermitMcpMiddleware(Middleware):
             # Use a fixed identity value
             return SETTINGS.identity_fixed_value, {"type": "fixed_identity"}
 
-    def _log_access_denied(self, context: MiddlewareContext, message, reason: str):
-        # Log an authorization violation
-        logger.warning(
-            f"Request Denied: {reason} | "
-            f"Method: {getattr(message, 'method', 'unknown')} | "
-            f"Source: {getattr(context, 'source', 'unknown')}"
+    def _log_access_event(self, context: MiddlewareContext, message, user_id, resource, action, permitted: bool, reason: str = ""):
+        # Unified logging for both authorized and denied access events
+        method = getattr(message, 'method', 'unknown')
+        source = getattr(context, 'source', 'unknown')
+        log_msg = (
+            f"{'Authorized' if permitted else 'Denied'} MCP request | "
+            f"User: {user_id} | Method: {method} | Resource: {resource} | Action: {action} | Source: {source}"
         )
-
-    def _log_authorized_request(self, context: MiddlewareContext, message):
-        # Log a successful authorization
-        logger.info(
-            f"Authorized MCP request: {getattr(message, 'method', 'unknown')} | "
-            f"Source: {getattr(context, 'source', 'unknown')}"
-        )
+        if not permitted and reason:
+            log_msg += f" | Reason: {reason}"
+        if permitted:
+            logger.info(log_msg)
+        else:
+            logger.warning(log_msg)
