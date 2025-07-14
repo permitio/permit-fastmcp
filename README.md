@@ -344,7 +344,40 @@ In your Permit.io dashboard:
 3. **Create Roles**: Define user roles and permissions
 4. **Assign Permissions**: Grant roles permission to perform actions on resources
 
-Example policy: "Users with 'developer' role can execute tools in the 'mcp_tools' resource"
+#### How MCP Methods Map to Permit.io Resources and Actions
+
+By default, the middleware maps MCP server methods to Permit.io resources and actions as follows:
+
+- **MCP server methods** (e.g., `tools/list`, `resources/read`):
+  - **Resource**: `{server_name}_{component}`
+    - Example: For a server named `myserver`, the method `tools/list` maps to resource `myserver_tools`.
+  - **Action**: The method verb (e.g., `list`, `read`, `get`).
+    - Example: `tools/list` → action: `list`, `resources/read` → action: `read`.
+
+- **Tool execution** (method `tools/call`):
+  - **Resource**: `{server_name}`
+    - Example: For a server named `myserver`, all tool executions map to resource `myserver`.
+  - **Action**: The tool name.
+    - Example: Executing a tool named `greet` maps to action: `greet`.
+
+This mapping allows you to write fine-grained Permit.io policies such as:
+- "Allow users with the 'admin' role to perform any action on `myserver_tools`."
+- "Allow users to execute the `greet` tool on `myserver` if they have the 'user' role."
+
+You can customize this mapping via the middleware settings if needed.
+
+![Permit.io Policy Mapping Example](policy_mapping.png)
+
+*Example: In Permit.io, the 'Admin' role is granted permissions on resources and actions as mapped by the middleware. For example, 'greet', 'greet-jwt', and 'login' are actions on the 'mcp_server' resource, and 'list' is an action on the 'mcp_server_tools' resource.*
+
+> **Note:**
+> Don’t forget to assign the relevant role (e.g., Admin, User) to the user authenticating to your MCP server (such as the user in the JWT) in the Permit.io Directory. Without the correct role assignment, users will not have access to the resources and actions you’ve configured in your policies.
+>
+> See the example below:
+>
+> ![Permit.io Directory Role Assignment Example](role_assignement.png)
+>
+> *Example: In Permit.io Directory, both 'client' and 'admin' users are assigned the 'Admin' role, granting them the permissions defined in your policy mapping.*
 
 ## Development
 
