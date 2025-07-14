@@ -20,4 +20,11 @@ test:
 	PYTHONPATH=. .venv/bin/pytest
 
 publish:
-	uv publish --token $$UV_PYPI_TOKEN 
+	uv build
+	@if [ -n "$$UV_PYPI_TOKEN" ]; then \
+	  uv publish --token $$UV_PYPI_TOKEN; \
+	else \
+	  TOKEN=$$(awk '/\[pypi\]/{flag=1;next}/\[/{flag=0}flag&&/password/{print $$3}' $$HOME/.pypirc); \
+	  if [ -z "$$TOKEN" ]; then echo "No PyPI token found in ~/.pypirc"; exit 1; fi; \
+	  uv publish --token $$TOKEN; \
+	fi 

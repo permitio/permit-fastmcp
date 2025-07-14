@@ -29,13 +29,13 @@ pip install permit-fastmcp
 
 ```python
 from fastmcp import FastMCP
-from permit_fastmcp.middleware import create_permit_middleware
+from permit_fastmcp.middleware.middleware import PermitMcpMiddleware
 
 # Create your FastMCP server
 mcp = FastMCP("My MCP Server")
 
 # Add Permit.io authorization middleware
-mcp.add_middleware(create_permit_middleware(
+mcp.add_middleware(PermitMcpMiddleware(
     permit_api_key="your-permit-api-key"
 ))
 
@@ -50,10 +50,10 @@ if __name__ == "__main__":
 ### 2. Advanced Configuration
 
 ```python
-from permit_fastmcp.middleware import create_permit_middleware
+from permit_fastmcp.middleware.middleware import PermitMcpMiddleware
 
 # Configure with custom settings
-middleware = create_permit_middleware(
+middleware = PermitMcpMiddleware(
     permit_pdp_url="http://localhost:7766",
     permit_api_key="your-api-key",
     enable_audit_logging=True,
@@ -383,12 +383,12 @@ uv sync
 
 ```python
 from fastmcp import FastMCP
-from permit_fastmcp.middleware import create_permit_middleware
+from permit_fastmcp.middleware.middleware import PermitMcpMiddleware
 
 mcp = FastMCP("Secure MCP Server")
 
 # Add authorization middleware
-mcp.add_middleware(create_permit_middleware(
+mcp.add_middleware(PermitMcpMiddleware(
     permit_api_key="your-api-key"
 ))
 
@@ -406,7 +406,7 @@ def public_tool() -> str:
 ### Custom User Extraction
 
 ```python
-from permit_fastmcp.middleware import PermitMcpMiddleware
+from permit_fastmcp.middleware.middleware import PermitMcpMiddleware
 
 class CustomPermitMiddleware(PermitMcpMiddleware):
     def _extract_principal_info(self, context):

@@ -6,14 +6,19 @@ from middleware.middleware import PermitMcpMiddleware
 
 # Import and set up logging configuration
 from logger_config import setup_logging
+import os
 
 setup_logging()  # Initialize logging for the application
 
 
 def main():
+    # Read the Permit API key from the environment variable
+    permit_api_key = os.environ.get("PERMIT_API_KEY")
+    if not permit_api_key:
+        raise RuntimeError("PERMIT_API_KEY environment variable is not set.")
     # Create the PermitMcpMiddleware with your Permit API key
     middleware = PermitMcpMiddleware(
-        permit_api_key="permit_key_i9y97df9eO0JsXcwAvVL2ZoAEWkBPbjuCz7dDPu1gIvVwrP2aqkTM5zW4MwOE7e63Q8gbPBYBLtfLUVgrVTUhx"
+        permit_api_key=permit_api_key
     )
     # Add the middleware to the example MCP server
     example_mcp.add_middleware(middleware)
