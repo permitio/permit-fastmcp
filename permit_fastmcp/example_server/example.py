@@ -1,6 +1,8 @@
 """
 Example FastMCP server with Permit.io authorization and JWT-based authentication.
 
+NOTE: The `login` tool in this example is NOT the standard way to obtain a JWT in production. It is included only for simplicity and to make demoing/experimenting with the example server easy. In real-world scenarios, JWTs should be issued by your authentication provider (e.g., Auth0, Okta, your own IdP).
+
 - Provides a login tool to get a JWT token.
 - Demonstrates how to use the JWT in the Authorization header for secure tool calls.
 - Shows how to configure the middleware for JWT identity extraction.

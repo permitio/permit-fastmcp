@@ -19,6 +19,9 @@
    ```
 4. **Login to get a JWT token**
    Use the `login` tool with username/password (e.g., `admin`/`password` or `client`/`client`). This will return a JWT token.
+   #### Note 
+    The `login` tool in this example is NOT the standard way to obtain a JWT in production. It is included only for simplicity and to make demoing/experimenting with the example server easy. In real-world scenarios, JWTs should be issued by your authentication provider (e.g., Auth0, Okta, your own IdP).
+
 5. **Call a tool with JWT authentication**
    Use the `greet-jwt` tool, passing the JWT as a Bearer token in the `Authorization` header:
    ```http
