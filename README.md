@@ -366,7 +366,7 @@ This mapping allows you to write fine-grained Permit.io policies such as:
 
 You can customize this mapping via the middleware settings if needed.
 
-![Permit.io Policy Mapping Example](policy_mapping.png)
+![Permit.io Policy Mapping Example](./docs/images/policy_mapping.png)
 
 *Example: In Permit.io, the 'Admin' role is granted permissions on resources and actions as mapped by the middleware. For example, 'greet', 'greet-jwt', and 'login' are actions on the 'mcp_server' resource, and 'list' is an action on the 'mcp_server_tools' resource.*
 
@@ -375,7 +375,7 @@ You can customize this mapping via the middleware settings if needed.
 >
 > See the example below:
 >
-> ![Permit.io Directory Role Assignment Example](role_assignement.png)
+> ![Permit.io Directory Role Assignment Example](./docs/images/role_assignement.png)
 >
 > *Example: In Permit.io Directory, both 'client' and 'admin' users are assigned the 'Admin' role, granting them the permissions defined in your policy mapping.*
 
