@@ -10,14 +10,14 @@ import jwt
 TEST_SERVER_PORT = 8765
 TEST_SERVER_URL = f"http://localhost:{TEST_SERVER_PORT}/mcp"
 
-
 @pytest.fixture(scope="module")
 def start_example_server():
-    # Set the API key env var for the server
-    permit_api_key = "dummy-key"
+    # Get the API key and PDP URL from the environment variables
+    permit_api_key = os.environ.get("PERMIT_API_KEY")
+    permit_pdp_url = os.environ.get("PERMIT_PDP_URL") or "https://cloudpdp.api.permit.io"
     from permit_fastmcp.run_example_server import main as server_main
 
-    proc = multiprocessing.Process(target=server_main, args=(TEST_SERVER_PORT, None))
+    proc = multiprocessing.Process(target=server_main, args=(TEST_SERVER_PORT,permit_api_key,permit_pdp_url))
     proc.start()
     # Wait for server to be up using MCP client ping
     for _ in range(20):
