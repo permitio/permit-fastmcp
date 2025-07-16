@@ -33,7 +33,12 @@ jobs:
           source .venv/bin/activate
           uv sync --dev
 
+      - name: List installed packages
+        run: |
+          source .venv/bin/activate
+          python -m pip list
+
       - name: Run pytest
         run: |
           source .venv/bin/activate
-          PYTHONPATH=. python -m pytest --maxfail=2 --disable-warnings -q
+          PYTHONPATH=. .venv/bin/python -m pytest --maxfail=2 --disable-warnings -q
