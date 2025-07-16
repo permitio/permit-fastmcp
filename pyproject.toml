@@ -4,6 +4,8 @@ version = "0.1.0"
 description = "Permit.io authorization middleware for FastMCP servers."
 readme = "README.md"
 requires-python = ">=3.11"
+homepage = "https://github.com/permitio/permit-fastmcp"
+repository = "https://github.com/permitio/permit-fastmcp"
 dependencies = [
     "fastmcp>=2.10.1",
     "permit>=2.7.5",
@@ -18,18 +20,19 @@ authors = [
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "black>=23.0.0"
+    "black>=23.0.0",
+    "pytest-cov>=6.2.1"
 ]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -q"
+addopts = "-ra -q --cov=permit_fastmcp --cov-report=term-missing"
 testpaths = ["tests"]
 
 [build-system]

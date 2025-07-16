@@ -39,3 +39,7 @@ jobs:
         run: |
           source .venv/bin/activate
           make all
+      - name: Run coverage (fail if <65%)
+        run: |
+          source .venv/bin/activate
+          make coverage
