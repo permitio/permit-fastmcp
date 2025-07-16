@@ -39,4 +39,4 @@ jobs:
 
       - name: Run pytest
         run: |
-          uv run pytest --maxfail=2 --disable-warnings -q
+          uv run python -m pytest --maxfail=2 --disable-warnings -q
