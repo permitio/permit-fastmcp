@@ -27,13 +27,16 @@ jobs:
             uv.lock
           key: ${{ runner.os }}-uv-${{ hashFiles('uv.lock') }}
 
-      - name: Install dependencies
+      - name: Create and sync venv
         run: |
           uv venv
           source .venv/bin/activate
-          uv sync
+          uv sync --dev
+
+      - name: List installed packages
+        run: |
+          uv pip list
 
       - name: Run pytest
         run: |
-          source .venv/bin/activate
-          PYTHONPATH=. .venv/bin/pytest --maxfail=2 --disable-warnings -q
+          uv run python -m pytest --maxfail=2 --disable-warnings -q

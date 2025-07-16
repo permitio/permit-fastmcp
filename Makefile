@@ -1,6 +1,6 @@
 # Makefile for permit-fastmcp project
 
-.PHONY: all format lint typecheck security test publish
+.PHONY: all format lint typecheck security test publish coverage
 
 all: format lint typecheck security test
 
@@ -28,3 +28,6 @@ publish:
 	  if [ -z "$$TOKEN" ]; then echo "No PyPI token found in ~/.pypirc"; exit 1; fi; \
 	  uv publish --token $$TOKEN; \
 	fi 
+
+coverage:
+	PYTHONPATH=. .venv/bin/pytest --cov=permit_fastmcp --cov-report=term-missing --cov-fail-under=80 
