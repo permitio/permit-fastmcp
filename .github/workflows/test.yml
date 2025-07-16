@@ -31,7 +31,7 @@ jobs:
         run: |
           uv venv
           source .venv/bin/activate
-          uv sync
+          uv sync --dev
 
       - name: Run pytest
         run: |
