@@ -35,7 +35,7 @@ jobs:
 
       - name: List installed packages
         run: |
-          uv run python -m pip list
+          uv pip list
 
       - name: Run pytest
         run: |
