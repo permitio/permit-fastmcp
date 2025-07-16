@@ -4,8 +4,6 @@ version = "0.1.0"
 description = "Permit.io authorization middleware for FastMCP servers."
 readme = "README.md"
 requires-python = ">=3.11"
-homepage = "https://github.com/permitio/permit-fastmcp"
-repository = "https://github.com/permitio/permit-fastmcp"
 dependencies = [
     "fastmcp>=2.10.1",
     "permit>=2.7.5",
