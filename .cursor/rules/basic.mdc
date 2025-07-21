@@ -15,6 +15,9 @@ alwaysApply: false
 - Use environment variables or config files for secrets and settings.
 - Write tests for new features and bug fixes.
 
+# Attitude 
+When a soild fix - apply it without asking
+
 # Dependency Management & Publishing
 - Use `uv` for installing, updating, and publishing packages:
   - Install dependencies: `uv pip install -r requirements.txt`
