@@ -54,6 +54,16 @@ if __name__ == "__main__":
 >
 > *Example: In Permit.io Directory, both 'client' and 'admin' users are assigned the 'Admin' role, granting them the permissions defined in your policy mapping.*
 
+## ABAC Policies with Tool Arguments
+
+The middleware supports Attribute-Based Access Control (ABAC) policies that can evaluate tool arguments as attributes. Tool arguments are automatically flattened as individual attributes (e.g., `arg_name`, `arg_number`) for granular policy conditions.
+
+![ABAC Condition Example](./docs/images/abac_condition_example.png)
+
+*Example: Create dynamic resources with conditions like `resource.arg_number greater-than 10` to allow the `conditional-greet` tool only when the number argument exceeds 10.*
+
+For detailed ABAC configuration and examples, see [ABAC Policies with Tool Arguments](./docs/policy-mapping.md#abac-policies-with-tool-arguments).
+
 ## Example: JWT Authentication
 
 See [`permit_fastmcp/example_server/example.py`](permit_fastmcp/example_server/example.py) for a full example of JWT-based authentication and usage.
