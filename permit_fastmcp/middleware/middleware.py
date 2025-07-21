@@ -120,13 +120,13 @@ class PermitMcpMiddleware(Middleware):
         # New mapping: resource = MCP_SERVER_NAME, action = tool_name (no prefix)
         resource = SETTINGS.mcp_server_name
         action = tool_name or "unknown_tool"
-        
+
         # Build attributes based on configuration
         attributes = {
             "tool_name": tool_name,
             "mcp_method": method,
         }
-        
+
         # Handle tool arguments based on flatten_tool_arguments setting
         if SETTINGS.flatten_tool_arguments:
             # Flatten arguments as individual attributes with prefix
@@ -136,7 +136,7 @@ class PermitMcpMiddleware(Middleware):
         else:
             # Keep arguments nested under "arguments" key (default behavior)
             attributes["arguments"] = arguments
-            
+
         logger.debug(f"Mapped tool call to action: {action} and resource: {resource}")
         user_id, _ = self._extract_principal_info(context)
         permitted, reason = await self._authorize_request(
