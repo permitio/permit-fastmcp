@@ -82,6 +82,11 @@ class Settings(BaseSettings):
     # Whether to prefix resources with the MCP server name (for non-tool calls) (PERMIT_MCP_PREFIX_RESOURCE_WITH_SERVER_NAME)
     prefix_resource_with_server_name: bool = True
 
+    # Whether to flatten tool arguments as individual attributes with prefix (PERMIT_MCP_FLATTEN_TOOL_ARGUMENTS)
+    flatten_tool_arguments: bool = True
+    # Prefix for flattened tool argument attributes (PERMIT_MCP_TOOL_ARGUMENT_PREFIX)
+    tool_argument_prefix: str = "arg_"
+
 
 SETTINGS = Settings()
 

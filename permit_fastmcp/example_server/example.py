@@ -96,6 +96,29 @@ async def greet_jwt(ctx: Context) -> str:
         raise Exception(f"Invalid token: {e}")
 
 
+@mcp.tool(name="conditional-greet", description="Greet a user conditionally potentially using an ABAC policy")
+def conditional_greet(name: str, number: int, log_message: str) -> str:
+    """
+    Greet a user conditionally based on a number value and log a custom message.
+    
+    Args:
+        name: The name of the person to greet
+        number: A number that determines the greeting type (0-10: casual, 11-20: formal, >20: enthusiastic)
+        log_message: A custom message to be logged
+    
+    Returns:
+        A conditional greeting based on the number value
+    """
+    print(f"LOG: {log_message}")  # Simple logging to console
+    
+    if 0 <= number <= 10:
+        return f"Hey {name}! Nice to see you around."
+    elif 11 <= number <= 20:
+        return f"Good day, {name}. It's a pleasure to make your acquaintance."
+    else:
+        return f"WOW {name}! What an absolutely AMAZING day to see you! 🎉"
+
+
 if __name__ == "__main__":
     # Start the FastMCP server with HTTP transport
     mcp.run(transport="http")
