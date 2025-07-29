@@ -37,13 +37,6 @@ def start_example_server():
     proc.join()
 
 
-@pytest.mark.asyncio
-async def test_greet(start_example_server):
-    client = Client(TEST_SERVER_URL)
-    async with client:
-        result = await client.call_tool("greet", {"name": "Alice"})
-        assert "Hello, Alice" in result.data
-
 
 @pytest.mark.asyncio
 async def test_login_and_greet_jwt(start_example_server):

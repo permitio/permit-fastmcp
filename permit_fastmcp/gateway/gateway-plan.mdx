@@ -1,0 +1,78 @@
+# Plan to implement an MCP gateway with FastMCP
+
+The gateway is a server that can be used to proxy requests to the FastMCP server.
+
+The gateway will be used to:
+
+- Proxy requests to the FastMCP server
+- Add authentication and authorization to the requests
+- Add rate limiting to the requests
+- Add caching to the requests
+- Add logging to the requests
+
+
+## core
+We will use https://gofastmcp.com/servers/proxy and https://gofastmcp.com/servers/composition as a reference for the gateway implementing the gateway with FastMCP.
+Gateway will be dynamic adding remote servers to the proxy on the fly.
+
+We will use the permit middleware to add authentication and authorization to the requests.
+
+
+## dynamic server loading
+A dynamic server entry can be added to the gateway on the fly (via fastmcp mounting)
+via:
+ - gateway.add_server(server_name, server_config)
+ - catch-all route to the gateway which includes the proxied server details in the request (either as query params or as a header)
+
+
+
+
+
+# Steps
+
+## Phase 1: Core Gateway Foundation
+
+### Step 1: Basic Gateway Structure
+- [ ] Create basic FastMCP gateway server structure
+- [ ] Implement core proxy functionality using FastMCP proxy server
+- [ ] Set up basic request/response handling
+- [ ] Add configuration management for gateway settings
+
+### Step 2: Dynamic Server Management
+- [ ] Implement `add_server(server_name, server_config)` method
+- [ ] Implement server removal functionality
+
+### Step 3: Request Routing
+- [ ] Implement catch-all route handler (via fastmcp middleware)
+- [ ] Add server identification via query parameters or headers
+- [ ] Create request forwarding logic
+- [ ] Add error handling for unknown servers
+
+### Step 3.5 Server Registry
+- [ ] Create server registry to track available servers
+- [ ] Add server validation and health checking
+
+
+## Phase 2: Authentication & Authorization
+
+### Step 4: Permit Middleware Integration
+- [ ] Integrate existing permit middleware into gateway
+- [ ] Add authentication header processing
+- [ ] Implement authorization checks before request forwarding
+- [ ] Add user context extraction and validation
+
+
+### Step 5: OAuth2.1 Server
+- [] Implement the MCP spec requirement with a builtin OAuth2.1 server - https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization 
+- [] add option to proxy well known oauth2.1 endpoints (https://oauth.net/2/discovery/endpoint) instead of using the builtin server (per remote server)
+
+
+
+
+
+
+
+
+
+
+

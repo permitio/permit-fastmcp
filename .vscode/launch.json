@@ -6,10 +6,22 @@
     "configurations": [
 
         {
-            "name": "Python Debugger: FastMCP",
+            "name": "Debug: FastMCP",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/permit_fastmcp/run_example_server.py",
+            "args": [
+
+            ],
+            "justMyCode": false,
+            "jinja": true,
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "name": "Debug: Gateway",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/permit_fastmcp/gateway/gateway.py",
             "args": [
 
             ],

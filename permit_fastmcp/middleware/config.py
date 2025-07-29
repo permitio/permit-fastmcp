@@ -28,6 +28,7 @@ class Settings(BaseSettings):
         case_sensitive=False,
         env_file=".env",
         env_file_encoding="utf-8",
+        extra="ignore",  # Ignore extra environment variables
     )
 
     # Methods recognized for resource/action mapping (PERMIT_MCP_KNOWN_METHODS)

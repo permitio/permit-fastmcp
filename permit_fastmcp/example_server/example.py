@@ -17,14 +17,15 @@ the token in the Authorization header.
 from fastmcp import FastMCP, Context
 import jwt
 import datetime
-from permit_fastmcp.middleware.config import SETTINGS
+from permit_fastmcp.middleware.config import SETTINGS, IdentityMode
+from permit_fastmcp.middleware.decorators import identity_mode
 
 # Secret key for signing JWTs (in production, use a secure, environment-based
 # secret!)
 SECRET_KEY = "mysecretkey"
 
-# Configure the middleware to use JWT mode for identity extraction
-SETTINGS.identity_mode = "jwt"
+# Configure the middleware to use JWT mode for identity extraction as default
+SETTINGS.identity_mode = IdentityMode.fixed
 SETTINGS.identity_jwt_secret = SECRET_KEY
 
 # Create the FastMCP server
@@ -73,6 +74,7 @@ def login(username: str, password: str) -> str:
         "header."
     ),
 )
+@identity_mode(IdentityMode.jwt, jwt_secret=SECRET_KEY, jwt_field="sub")
 async def greet_jwt(ctx: Context) -> str:
     """
     Greet a user by extracting their name from a JWT in the Authorization header.

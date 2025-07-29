@@ -32,6 +32,16 @@ When a soild fix - apply it without asking
 - Add or update inline comments for complex logic.
 - Ensure all public APIs are documented.
 
+# FastMCP HTTP Request Access
+- Always use FastMCP dependency functions to access HTTP request information:
+  - Import: `from fastmcp.server.dependencies import get_http_request, get_http_headers`
+  - Use `get_http_request(context)` to get the full Starlette Request object
+  - Use `get_http_headers(context)` to safely get headers (returns empty dict if no request context)
+  - Never manually access `context.fastmcp_context.request_context.request`
+  - Always check if request/headers exist before using them
+  - Use `get_http_headers(include_all=True)` to include all headers (default excludes problematic ones)
+- Reference: https://gofastmcp.com/patterns/http-requests
+
 # General
 - Use descriptive commit messages.
 - Remove unused code and files.
