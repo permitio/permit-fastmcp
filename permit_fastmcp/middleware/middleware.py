@@ -9,6 +9,7 @@ from mcp.types import ErrorData
 import re
 import jwt
 from .config import SETTINGS
+from .utils import generate_action_from_tool_name
 
 logger = logging.getLogger("permit_fastmcp.middleware")
 
@@ -119,7 +120,7 @@ class PermitMcpMiddleware(Middleware):
         arguments = getattr(message, "arguments", {})
         # New mapping: resource = MCP_SERVER_NAME, action = tool_name (no prefix)
         resource = SETTINGS.mcp_server_name
-        action = tool_name or "unknown_tool"
+        action = generate_action_from_tool_name(tool_name)
 
         # Build attributes based on configuration
         attributes = {
