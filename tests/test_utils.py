@@ -4,18 +4,18 @@ from permit_fastmcp.middleware.utils import generate_action_from_tool_name
 
 def test_generate_action_from_tool_name_basic():
     """Test basic tool name conversion."""
-    assert generate_action_from_tool_name("test_tool") == "test-tool"
+    assert generate_action_from_tool_name("test_tool") == "test_tool"  # underscores preserved
     assert generate_action_from_tool_name("my.tool") == "my-tool"
     assert generate_action_from_tool_name("path/to/tool") == "path-to-tool"
 
 
 def test_generate_action_from_tool_name_multiple_replacements():
     """Test tool names with multiple special characters."""
-    assert generate_action_from_tool_name("test.tool_name") == "test-tool-name"
-    assert generate_action_from_tool_name("path/to/my_tool") == "path-to-my-tool"
+    assert generate_action_from_tool_name("test.tool_name") == "test-tool_name"  # underscores preserved
+    assert generate_action_from_tool_name("path/to/my_tool") == "path-to-my_tool"  # underscores preserved
     assert (
         generate_action_from_tool_name("com.example.tool_name")
-        == "com-example-tool-name"
+        == "com-example-tool_name"  # underscores preserved
     )
 
 
@@ -30,11 +30,11 @@ def test_generate_action_from_tool_name_edge_cases():
     # Only special characters
     assert generate_action_from_tool_name("...") == "---"
     assert generate_action_from_tool_name("///") == "---"
-    assert generate_action_from_tool_name("___") == "---"
+    assert generate_action_from_tool_name("___") == "___"  # underscores preserved
 
     # Mixed special characters
     assert (
-        generate_action_from_tool_name("test.tool_name/path") == "test-tool-name-path"
+        generate_action_from_tool_name("test.tool_name/path") == "test-tool_name-path"  # underscores preserved
     )
 
 
@@ -43,3 +43,4 @@ def test_generate_action_from_tool_name_no_changes():
     assert generate_action_from_tool_name("simpletool") == "simpletool"
     assert generate_action_from_tool_name("tool-name") == "tool-name"
     assert generate_action_from_tool_name("toolname") == "toolname"
+    assert generate_action_from_tool_name("tool_name") == "tool_name"  # underscores are valid
